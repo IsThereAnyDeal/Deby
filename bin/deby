@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+require_once $_composer_autoload_path ?? __DIR__."/../vendor/autoload.php";
+
+use Ds\Set;
+use Garden\Cli\Cli as GardenCli;
+use IsThereAnyDeal\Tools\Deby\Cli\Cli;
+use IsThereAnyDeal\Tools\Deby\Cli\Color;
+use IsThereAnyDeal\Tools\Deby\Cli\Style;
+use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
+use IsThereAnyDeal\Tools\Deby\Runtime\Setup;
+
+try {
+    $cli = (new GardenCli())
+        ->setFormatOutput(true)
+        ->opt("config:c", "Config file", true)
+        ->opt("no-skip", "Ignore skipping rules", type: "bool")
+        ->opt("option:o", "Options provided to config", type: "string[]")
+        ->arg("command", "Recipe and target to run\nFormat <recipe[,recipe...]>[@target]", true);
+
+    $args = $cli->parse($argv);
+
+    /** @var string $config */
+    $config = $args->getOpt("config");
+
+    /** @var list<string> $argOptions  values are references! */
+    $argOptions = $args->getOpt("option", []);
+    /** @var Set<string> $options */
+    $options = new Set([...$argOptions]); // argOptions is list of references, need to dereference it
+
+    /** @param Set<string> $options */
+    $setup = (function(string $path, Set $options): Setup {
+        if (!file_exists($path)) {
+            throw new ErrorException("Config not found at: $path");
+        }
+
+        $setup = new Setup();
+        $func = include $path;
+        $func($setup, $options);
+        return $setup;
+    })($config, $options);
+
+    $runtime = new Runtime($setup);
+    $runtime->noSkip = (bool)$args->getOpt("no-skip", false);
+
+    $parts = explode("@", $args->getArg("command")); // @phpstan-ignore-line
+    $recipes = explode(",", $parts[0]);
+    $target = $parts[1] ?? null;
+    foreach($recipes as $recipe) {
+        $runtime->run($recipe, $target);
+    }
+} catch(Throwable $e) {
+    $message = $e->getMessage();
+    Cli::writeln(empty($message) ? "Error": $message, Color::Red, Style::Bold);
+
+    if (empty($message)) {
+        throw $e;
+    }
+    exit(1);
+}
