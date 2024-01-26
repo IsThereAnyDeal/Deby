@@ -1,6 +1,24 @@
 #!/usr/bin/env php
 <?php
-require_once $_composer_autoload_path ?? __DIR__."/../vendor/autoload.php";
+$autoloadPath = $_composer_autoload_path ?? __DIR__."/../vendor/autoload.php";
+if (file_exists($autoloadPath)) {
+    require_once $autoloadPath;
+// Try to find vendor manually
+} else {
+    $up = "/../";
+    $autoloadPath = null;
+    while (is_dir(__DIR__.$up)) {
+        if (file_exists(__DIR__.$up."vendor/autoload.php")) {
+            $autoloadPath = __DIR__.$up."vendor/autoload.php";
+            break;
+        }
+        $up = "../".$up;
+    }
+    if (is_null($autoloadPath)) {
+        throw new Exception("vendor/autoload not found");
+    }
+    require_once $autoloadPath;
+}
 
 use Ds\Set;
 use Garden\Cli\Cli as GardenCli;
