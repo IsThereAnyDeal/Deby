@@ -41,8 +41,10 @@ class Recipe
         return !empty($this->tasks);
     }
 
-    public function add(string $name, Task $task): self {
-        $this->tasks[] = new TaskDescriptor($name, $task);
+    public function add(string $name, Task $task, bool $include=true): self {
+        if ($include) {
+            $this->tasks[] = new TaskDescriptor($name, $task);
+        }
         return $this;
     }
 
