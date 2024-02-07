@@ -39,7 +39,11 @@ class DeleteDir implements Task
 
     public function run(Runtime $runtime): void {
         $dir = realpath($this->dir);
-        if ($dir !== false && !is_dir($dir)) {
+        if ($dir === false) {
+            return;
+        }
+
+        if (!is_dir($dir)) {
             throw new \ErrorException("{$this->dir} is not dir");
         }
 
