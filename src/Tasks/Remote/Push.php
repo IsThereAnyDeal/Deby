@@ -10,7 +10,8 @@ use IsThereAnyDeal\Tools\Deby\Tasks\Vars;
 class Push implements Task
 {
     public function __construct(
-        private readonly string $releaseArchivePath
+        private readonly string $releaseArchivePath,
+        private readonly ?string $releaseName=null
     ) {}
 
     public function run(Runtime $runtime): void {
@@ -18,7 +19,7 @@ class Push implements Task
         $releaseLog = $runtime->getReleaseLog();
 
         if (!$runtime->hasVar(Vars::ReleaseName)) {
-            $releaseName = (new DateTimeImmutable())->format("Ymd-His");
+            $releaseName = $this->releaseName ?? (new DateTimeImmutable())->format("Ymd-His");
             $runtime->setVar(Vars::ReleaseName, $releaseName);
         } else {
             $releaseName = $runtime->getVar(Vars::ReleaseName);
