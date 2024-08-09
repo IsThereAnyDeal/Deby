@@ -86,7 +86,7 @@ class FileSet implements IteratorAggregate
             }
         }
 
-        if (str_contains("*", $pattern)) {
+        if (str_contains($pattern, "*")) {
             $iterator = new GlobIterator("{$dir}/{$pattern}",
                 FilesystemIterator::KEY_AS_FILENAME
                 | FilesystemIterator::CURRENT_AS_PATHNAME
