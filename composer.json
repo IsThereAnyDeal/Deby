@@ -5,6 +5,11 @@
       "IsThereAnyDeal\\Tools\\Deby\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "IsThereAnyDeal\\Tests\\Deby\\": "tests/"
+    }
+  },
   "bin": [
     "bin/deby"
   ],
@@ -13,6 +18,7 @@
     "vanilla/garden-cli": "^4.0"
   },
   "require-dev": {
-    "phpstan/phpstan": "^1.10"
+    "phpstan/phpstan": "^1.10",
+    "phpunit/phpunit": "^11.3"
   }
 }
