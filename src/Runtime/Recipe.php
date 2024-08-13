@@ -23,7 +23,7 @@ class Recipe
     }
 
     /**
-     * @param list<string> $skipTargets
+     * @param list<string|null> $skipTargets
      */
     public function after(string $recipe, array $skipTargets=[]): self {
         $this->after[] = new Dependency($recipe, $skipTargets);

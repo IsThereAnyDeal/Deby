@@ -97,7 +97,7 @@ class Runtime
             $plan = [...$plan, ...$this->buildPlan(
                 $dependency->name,
                 $target,
-                $skip || (!$this->noSkip && !is_null($target) && $dependency->skipTarget($target))
+                $skip || (!$this->noSkip && $dependency->skipTarget($target))
             )];
         }
         $plan[] = [$recipe, $skip];

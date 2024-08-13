@@ -15,22 +15,30 @@ use Traversable;
 class FileSet implements IteratorAggregate
 {
     private readonly string $dir;
+    private string $dirPath;
 
     /** @var list<array{boolean, string}> */
     private array $patterns;
 
     public function __construct(string $dir) {
-        $dir = realpath($dir);
-        if ($dir === false) {
-            throw new ErrorException("Invalid path: '$dir'");
-        }
-
-        if (!is_dir($dir)) {
-            throw new ErrorException("'$dir' is not a directory");
-        }
-
-        $this->dir = str_replace("\\", "/", $dir);
+        $this->dir = $dir;
         $this->patterns = [];
+    }
+
+    private function dir(): string {
+        if (!isset($this->dirPath)) {
+            $dir = realpath($this->dir);
+            if ($dir === false) {
+                throw new ErrorException("Invalid path: '{$this->dir}'");
+            }
+
+            if (!is_dir($dir)) {
+                throw new ErrorException("'$dir' is not a directory");
+            }
+
+            $this->dirPath = str_replace("\\", "/", $dir);
+        }
+        return $this->dirPath;
     }
 
     public function include(string $pattern): self {
@@ -131,7 +139,7 @@ class FileSet implements IteratorAggregate
             $exclude->clear();
 
             $path = explode("/", $pattern);
-            $this->readdir($this->dir, $path[0], array_slice($path, 1), $include ? $result : $exclude, false);
+            $this->readdir($this->dir(), $path[0], array_slice($path, 1), $include ? $result : $exclude, false);
 
             if (!$include) {
                 $result = $result->diff($exclude);
@@ -142,7 +150,7 @@ class FileSet implements IteratorAggregate
     }
 
     public function getRelativePath(string $path): string {
-        return substr($path, strlen($this->dir)+1);
+        return substr($path, strlen($this->dir())+1);
     }
 
     public function getIterator(): Traversable {

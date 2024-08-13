@@ -7,11 +7,11 @@ class Dependency
 {
     public readonly string $name;
 
-    /** @var Set<string> */
+    /** @var Set<string|null> */
     private readonly Set $skipTargets;
 
     /**
-     * @param list<string> $skipTargets
+     * @param list<string|null> $skipTargets
      */
     public function __construct(
         string $name,
@@ -21,7 +21,7 @@ class Dependency
         $this->skipTargets = new Set($skipTargets);
     }
 
-    public function skipTarget(string $target): bool {
+    public function skipTarget(?string $target): bool {
         return $this->skipTargets->contains($target);
     }
 }
