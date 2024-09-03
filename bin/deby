@@ -32,8 +32,8 @@ try {
     $cli = (new GardenCli())
         ->setFormatOutput(true)
         ->opt("config:c", "Config file", true)
-        ->opt("no-skip", "Ignore skipping rules", type: "bool")
         ->opt("option:o", "Options provided to config", type: "string[]")
+        ->opt("noPrintSkipped", "Do not print skipped recipes", type: "boolean")
         ->arg("command", "Recipe and target to run\nFormat <recipe[,recipe...]>[@target]", true);
 
     $args = $cli->parse($argv);
@@ -59,7 +59,7 @@ try {
     })($config, $options);
 
     $runtime = new Runtime($setup);
-    $runtime->noSkip = (bool)$args->getOpt("no-skip", false);
+    $runtime->dontPrintSkipped = (bool)$args->getOpt("noPrintSkipped", false);
 
     $parts = explode("@", $args->getArg("command")); // @phpstan-ignore-line
     $recipes = explode(",", $parts[0]);

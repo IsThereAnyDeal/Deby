@@ -13,7 +13,7 @@ class RuntimeTest extends TestCase
         $ranTasks = [];
 
         $setup = new Setup();
-        $setup->local("env-1-task")
+        $setup->local("env-1-task", targets: ["env1"])
             ->add("Env 1 task", new class($ranTasks) implements Task {
                 /** @param list<string> &$ranTasks */
                 public function __construct(public array &$ranTasks) {}
@@ -22,7 +22,7 @@ class RuntimeTest extends TestCase
                 }
             });
 
-        $setup->local("env-2-task")
+        $setup->local("env-2-task", targets: ["env2"])
             ->add("Env 2 task", new class($ranTasks) implements Task {
                 /** @param list<string> &$ranTasks */
                 public function __construct(public array &$ranTasks) {}
@@ -31,7 +31,7 @@ class RuntimeTest extends TestCase
                 }
             });
 
-        $setup->local("env-null-task")
+        $setup->local("env-null-task", targets: [null])
             ->add("Env null task", new class($ranTasks) implements Task {
                 /** @param list<string> &$ranTasks */
                 public function __construct(public array &$ranTasks) {}
@@ -40,7 +40,7 @@ class RuntimeTest extends TestCase
                 }
             });
 
-        $setup->local("env-any-task")
+        $setup->local("env-any-task", targets: [])
             ->add("Env any task", new class($ranTasks) implements Task {
                 /** @param list<string> &$ranTasks */
                 public function __construct(public array &$ranTasks) {}
@@ -50,12 +50,28 @@ class RuntimeTest extends TestCase
             });
 
         $setup->local("recipe")
-            ->after("env-1-task", allowTargets: ["env1"])
-            ->after("env-2-task", allowTargets: ["env2"])
-            ->after("env-null-task", allowTargets: [null])
-            ->after("env-any-task", allowTargets: []);
+            ->after("env-1-task")
+            ->after("env-2-task")
+            ->after("env-null-task")
+            ->after("env-any-task");
 
         $runtime = new Runtime($setup);
+        $runtime->dontPrintSkipped = false;
+
+        $runtime->run("recipe", "env1");
+        $this->assertEquals(["env-1", "env-any"], $ranTasks);
+        $ranTasks = [];
+
+        $runtime->run("recipe", "env2");
+        $this->assertEquals(["env-2", "env-any"], $ranTasks);
+        $ranTasks = [];
+
+        $runtime->run("recipe", null);
+        $this->assertEquals(["env-null", "env-any"], $ranTasks);
+        $ranTasks = [];
+
+
+        $runtime->dontPrintSkipped = true;
 
         $runtime->run("recipe", "env1");
         $this->assertEquals(["env-1", "env-any"], $ranTasks);

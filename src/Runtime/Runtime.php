@@ -16,7 +16,7 @@ class Runtime
     private ?SshClient $sshClient = null;
     private ?ReleaseLog $releaseLog = null;
 
-    public bool $noSkip = false;
+    public bool $dontPrintSkipped = false;
 
     /** @var array<string, mixed> */
     private array $vars = [];
@@ -90,16 +90,21 @@ class Runtime
     private function buildPlan(string $recipeName, ?string $target, bool $skip): array {
         $recipe = $this->setup->getRecipe($recipeName);
 
+        $skipRecipe = $skip || !$recipe->allowTarget($target);
+        if ($skipRecipe && $this->dontPrintSkipped) {
+            return [];
+        }
+
         $plan = [];
         $dependencies = $recipe->getDependencies();
         foreach($dependencies as $dependency) {
             $plan = [...$plan, ...$this->buildPlan(
                 $dependency->name,
                 $target,
-                $skip || (!$this->noSkip && !$dependency->allowTarget($target))
+                $skipRecipe
             )];
         }
-        $plan[] = [$recipe, $skip];
+        $plan[] = [$recipe, $skipRecipe];
 
         return $plan;
     }
