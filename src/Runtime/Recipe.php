@@ -23,10 +23,10 @@ class Recipe
     }
 
     /**
-     * @param list<string|null> $skipTargets
+     * @param list<string|null> $allowTargets
      */
-    public function after(string $recipe, array $skipTargets=[]): self {
-        $this->after[] = new Dependency($recipe, $skipTargets);
+    public function after(string $recipe, array $allowTargets=[]): self {
+        $this->after[] = new Dependency($recipe, $allowTargets);
         return $this;
     }
 

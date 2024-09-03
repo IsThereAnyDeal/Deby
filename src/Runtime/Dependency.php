@@ -8,20 +8,21 @@ class Dependency
     public readonly string $name;
 
     /** @var Set<string|null> */
-    private readonly Set $skipTargets;
+    private readonly Set $allowedTargets;
 
     /**
-     * @param list<string|null> $skipTargets
+     * @param list<string|null> $allowedTargets
      */
     public function __construct(
         string $name,
-        array $skipTargets
+        array $allowedTargets
     ) {
         $this->name = $name;
-        $this->skipTargets = new Set($skipTargets);
+        $this->allowedTargets = new Set($allowedTargets);
     }
 
-    public function skipTarget(?string $target): bool {
-        return $this->skipTargets->contains($target);
+    public function allowTarget(?string $target): bool {
+        return $this->allowedTargets->isEmpty()
+            || $this->allowedTargets->contains($target);
     }
 }

@@ -6,7 +6,6 @@ use Ds\Set;
 use ErrorException;
 use IsThereAnyDeal\Tools\Deby\Cli\Cli;
 use IsThereAnyDeal\Tools\Deby\Cli\Color;
-use IsThereAnyDeal\Tools\Deby\Cli\Style;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\ReleaseLog;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshHost;
@@ -97,7 +96,7 @@ class Runtime
             $plan = [...$plan, ...$this->buildPlan(
                 $dependency->name,
                 $target,
-                $skip || (!$this->noSkip && $dependency->skipTarget($target))
+                $skip || (!$this->noSkip && !$dependency->allowTarget($target))
             )];
         }
         $plan[] = [$recipe, $skip];
