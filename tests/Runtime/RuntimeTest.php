@@ -55,6 +55,7 @@ class RuntimeTest extends TestCase
             ->after("env-null-task")
             ->after("env-any-task");
 
+        ob_start();
         $runtime = new Runtime($setup);
         $runtime->printSkipped = true;
 
@@ -84,5 +85,7 @@ class RuntimeTest extends TestCase
         $runtime->run("recipe", null);
         $this->assertEquals(["env-null", "env-any"], $ranTasks);
         $ranTasks = [];
+
+        ob_end_clean();
     }
 }

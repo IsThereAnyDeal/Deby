@@ -4,7 +4,6 @@ namespace IsThereAnyDeal\Tools\Deby\Runtime;
 use Ds\Map;
 use IsThereAnyDeal\Tools\Deby\Runtime\Structs\Step;
 use IteratorAggregate;
-use Traversable;
 
 /**
  * @implements IteratorAggregate<Step>
@@ -72,7 +71,10 @@ class ExecutionPlan implements IteratorAggregate
         return false;
     }
 
-    public function getIterator(): Traversable {
+    /**
+     * @return \Iterator<Step>
+     */
+    public function getIterator(): \Iterator {
         return new \ArrayIterator($this->plan);
     }
 }
