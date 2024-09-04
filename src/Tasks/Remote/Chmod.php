@@ -17,7 +17,7 @@ class Chmod implements Task
     ) {}
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
+        $ssh = $runtime->getActiveConnection()->getSshClient();
 
         $mode = base_convert((string)$this->mode, 10, 8);
         $dirs = implode(" ", array_map(fn(string $dir) => $ssh->remotePath($dir), $this->dirs));

@@ -1,6 +1,7 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Runtime;
 
+use IsThereAnyDeal\Tools\Deby\Exceptions\DisconnectedException;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\ReleaseLog;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshHost;
@@ -27,15 +28,24 @@ class Connection
         $this->hostName = null;
     }
 
-    public function getHostName(): ?string {
+    public function getHostName(): string {
+        if (is_null($this->hostName)) {
+            throw new DisconnectedException();
+        }
         return $this->hostName;
     }
 
-    public function getSshClient(): ?SshClient {
+    public function getSshClient(): SshClient {
+        if (is_null($this->sshClient)) {
+            throw new DisconnectedException();
+        }
         return $this->sshClient;
     }
 
-    public function getReleaseLog(): ?ReleaseLog {
+    public function getReleaseLog(): ReleaseLog {
+        if (is_null($this->releaseLog)) {
+            throw new DisconnectedException();
+        }
         return $this->releaseLog;
     }
 }

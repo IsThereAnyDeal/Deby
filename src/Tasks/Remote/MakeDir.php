@@ -14,7 +14,7 @@ class MakeDir implements Task
     ) {}
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
+        $ssh = $runtime->getActiveConnection()->getSshClient();
         $release = $runtime->getReleaseSetup();
 
         $ssh->mkdir($release->path($this->dir), $this->mode);

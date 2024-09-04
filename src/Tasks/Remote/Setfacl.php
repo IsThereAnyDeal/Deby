@@ -17,7 +17,7 @@ class Setfacl implements Task
 
     #[\Override]
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
+        $ssh = $runtime->getActiveConnection()->getSshClient();
         $release = $runtime->getReleaseSetup();
 
         foreach($this->facl as $path => $options) {

@@ -15,8 +15,9 @@ class Rollback implements Task
     public function __construct() {}
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
-        $releaseLog = $runtime->getReleaseLog();
+        $conn = $runtime->getActiveConnection();
+        $ssh = $conn->getSshClient();
+        $releaseLog = $conn->getReleaseLog();
 
         $prev = null;
         foreach($releaseLog as $name => $status) {

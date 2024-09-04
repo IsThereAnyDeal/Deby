@@ -29,8 +29,9 @@ class Cleanup implements Task
     }
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
-        $log = $runtime->getReleaseLog();
+        $conn = $runtime->getActiveConnection();
+        $ssh = $conn->getSshClient();
+        $log = $conn->getReleaseLog();
 
         foreach($log as $name => $status) {
             if ($status === EStatus::New) {

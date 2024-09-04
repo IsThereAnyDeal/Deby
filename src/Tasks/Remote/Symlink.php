@@ -19,7 +19,7 @@ class Symlink implements Task
     }
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
+        $ssh = $runtime->getActiveConnection()->getSshClient();
         $release = $runtime->getReleaseSetup();
 
         foreach($this->files as $file) {

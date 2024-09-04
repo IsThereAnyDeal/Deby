@@ -14,8 +14,9 @@ class Push implements Task
     ) {}
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
-        $releaseLog = $runtime->getReleaseLog();
+        $conn = $runtime->getActiveConnection();
+        $ssh = $conn->getSshClient();
+        $releaseLog = $conn->getReleaseLog();
         $release = $runtime->getReleaseSetup();
 
         $ssh->mkdir($release->dir());

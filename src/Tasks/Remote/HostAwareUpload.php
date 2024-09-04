@@ -37,8 +37,9 @@ class HostAwareUpload implements Task
     }
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
-        $host = $runtime->getHostName();
+        $conn = $runtime->getActiveConnection();
+        $ssh = $conn->getSshClient();
+        $host = $conn->getHostName();
 
         foreach($this->destinations as $remote) {
             if (!isset($this->map[$remote][$host])) {

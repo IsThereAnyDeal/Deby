@@ -15,7 +15,7 @@ class Ready implements Task
     public function __construct() {}
 
     public function run(Runtime $runtime): void {
-        $releaseLog = $runtime->getReleaseLog();
+        $releaseLog = $runtime->getActiveConnection()->getReleaseLog();
         $release = $runtime->getReleaseSetup();
 
         $releaseLog->setStatus($release->name, EStatus::Ready);

@@ -17,7 +17,7 @@ class Prepare implements Task
     ) {}
 
     public function run(Runtime $runtime): void {
-        $ssh = $runtime->getSshClient();
+        $ssh = $runtime->getActiveConnection()->getSshClient();
 
         $dirs = [
             Consts::StatusDir,

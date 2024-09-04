@@ -5,9 +5,8 @@ use DateTime;
 use ErrorException;
 use IsThereAnyDeal\Tools\Deby\Cli\Cli;
 use IsThereAnyDeal\Tools\Deby\Cli\Color;
-use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\ReleaseLog;
+use IsThereAnyDeal\Tools\Deby\Exceptions\NoConnectionException;
 use IsThereAnyDeal\Tools\Deby\Runtime\Structs\ReleaseSetup;
-use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
 
 class Runtime
 {
@@ -23,28 +22,11 @@ class Runtime
         private readonly Setup $setup
     ) {}
 
-    public function getHostName(): string {
-        $hostName =  $this->activeConnection?->getHostName();
-        if (is_null($hostName)) {
-            throw new ErrorException();
+    public function getActiveConnection(): Connection {
+        if (is_null($this->activeConnection)) {
+            throw new NoConnectionException();
         }
-        return $hostName;
-    }
-
-    public function getSshClient(): SshClient {
-        $client = $this->activeConnection?->getSshClient();
-        if (is_null($client)) {
-            throw new ErrorException();
-        }
-        return $client;
-    }
-
-    public function getReleaseLog(): ReleaseLog {
-        $releaseLog = $this->activeConnection?->getReleaseLog();
-        if (is_null($releaseLog)) {
-            throw new ErrorException();
-        }
-        return $releaseLog;
+        return $this->activeConnection;
     }
 
     public function hasReleaseSetup(): bool {
@@ -138,7 +120,7 @@ class Runtime
                 if ($task->remote) {
                     foreach($connections as $connection) {
                         $this->activeConnection = $connection;
-                        $host = $this->getHostName();
+                        $host = $connection->getHostName();
                         Cli::write("[{$target}@{$host}] ", Color::Red);
                         Cli::writeLn($task->name, Color::Green);
 
