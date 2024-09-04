@@ -2,11 +2,13 @@
 namespace IsThereAnyDeal\Tools\Deby\Tasks\Remote;
 
 use DateTimeImmutable;
+use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 use IsThereAnyDeal\Tools\Deby\Tasks\Vars;
 
+#[Remote]
 class Push implements Task
 {
     public function __construct(

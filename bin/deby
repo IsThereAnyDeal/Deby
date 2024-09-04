@@ -59,7 +59,7 @@ try {
     })($config, $options);
 
     $runtime = new Runtime($setup);
-    $runtime->dontPrintSkipped = (bool)$args->getOpt("noPrintSkipped", false);
+    $runtime->printSkipped = !(bool)$args->getOpt("noPrintSkipped", false);
 
     $parts = explode("@", $args->getArg("command")); // @phpstan-ignore-line
     $recipes = explode(",", $parts[0]);

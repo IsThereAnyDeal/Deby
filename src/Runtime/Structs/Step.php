@@ -7,6 +7,6 @@ class Step
 {
     public function __construct(
         public readonly Recipe $recipe,
-        public readonly bool $skip
+        public readonly bool $execute
     ) {}
 }

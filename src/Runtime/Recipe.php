@@ -1,10 +1,7 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Runtime;
 
-use DateTime;
 use Ds\Set;
-use IsThereAnyDeal\Tools\Deby\Cli\Cli;
-use IsThereAnyDeal\Tools\Deby\Cli\Color;
 use IsThereAnyDeal\Tools\Deby\Runtime\Structs\Dependency;
 use IsThereAnyDeal\Tools\Deby\Runtime\Structs\TaskDescriptor;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
@@ -25,7 +22,6 @@ class Recipe
      */
     public function __construct(
         public readonly string $name,
-        public readonly bool $remote,
         array $allowedTargets
     ) {
         $this->allowedTargets = new Set($allowedTargets);
@@ -47,6 +43,15 @@ class Recipe
 
     public function hasTasks(): bool {
         return !empty($this->tasks);
+    }
+
+    public function hasRemoteTasks(): bool {
+        foreach($this->tasks as $task) {
+            if ($task->remote) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function allowTarget(?string $target): bool {

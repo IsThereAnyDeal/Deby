@@ -1,9 +1,11 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Tasks\Remote;
 
+use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
+#[Remote]
 class Chmod implements Task
 {
     /**

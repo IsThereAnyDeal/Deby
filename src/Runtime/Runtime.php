@@ -2,22 +2,17 @@
 namespace IsThereAnyDeal\Tools\Deby\Runtime;
 
 use DateTime;
-use Ds\Map;
 use ErrorException;
 use IsThereAnyDeal\Tools\Deby\Cli\Cli;
 use IsThereAnyDeal\Tools\Deby\Cli\Color;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\ReleaseLog;
-use IsThereAnyDeal\Tools\Deby\Runtime\Structs\Step;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
-use IsThereAnyDeal\Tools\Deby\Ssh\SshHost;
 
 class Runtime
 {
-    private ?string $hostName = null;
-    private ?SshClient $sshClient = null;
-    private ?ReleaseLog $releaseLog = null;
+    public bool $printSkipped = true;
 
-    public bool $dontPrintSkipped = false;
+    public ?Connection $activeConnection = null;
 
     /** @var array<string, mixed> */
     private array $vars = [];
@@ -27,24 +22,27 @@ class Runtime
     ) {}
 
     public function getHostName(): string {
-        if (is_null($this->hostName)) {
+        $hostName =  $this->activeConnection?->getHostName();
+        if (is_null($hostName)) {
             throw new ErrorException();
         }
-        return $this->hostName;
+        return $hostName;
     }
 
     public function getSshClient(): SshClient {
-        if (is_null($this->sshClient)) {
+        $client = $this->activeConnection?->getSshClient();
+        if (is_null($client)) {
             throw new ErrorException();
         }
-        return $this->sshClient;
+        return $client;
     }
 
     public function getReleaseLog(): ReleaseLog {
-        if (is_null($this->releaseLog)) {
+        $releaseLog = $this->activeConnection?->getReleaseLog();
+        if (is_null($releaseLog)) {
             throw new ErrorException();
         }
-        return $this->releaseLog;
+        return $releaseLog;
     }
 
     public function hasVar(string $name): bool {
@@ -60,25 +58,12 @@ class Runtime
     }
 
     /**
-     * @param string $target
+     * @param ?string $target
      */
     public function run(string $recipeName, ?string $target): void {
         $start = microtime(true);
 
-        $dependencies = $this->buildPlan($recipeName, $target, false);
-
-        /** @var Map<Recipe, bool> $plan */
-        $plan = new Map();
-        foreach($dependencies as $step) {
-            $recipe = $step->recipe;
-            $skipped = $step->skip;
-
-            if ($plan->hasKey($recipe)) {
-                $plan->put($recipe, $plan->get($recipe) && $skipped);
-            } else {
-                $plan->put($recipe, $skipped);
-            }
-        }
+        $plan = new ExecutionPlan($recipeName, $this->setup, $target, $this->printSkipped);
 
         $this->execute($plan, $target);
 
@@ -88,102 +73,74 @@ class Runtime
         Cli::writeLn();
     }
 
-    /**
-     * @return list<Step>
-     */
-    private function buildPlan(string $recipeName, ?string $target, bool $skip): array {
-        $recipe = $this->setup->getRecipe($recipeName);
+    private function execute(ExecutionPlan $plan, ?string $target): void {
+        /** @var list<Connection> $connections */
+        $connections = [];
 
-        $skipRecipe = $skip || !$recipe->allowTarget($target);
-        if ($skipRecipe && $this->dontPrintSkipped) {
-            return [];
+        if ($plan->hasRemoteTasks()) {
+            if (empty($target)) {
+                throw new \InvalidArgumentException("Execution plan contains remote tasks but no target was specified");
+            }
+
+            $hosts = $this->setup->getTarget($target);
+            if (empty($hosts)) {
+                throw new \InvalidArgumentException("No hosts found for target");
+            }
+
+            foreach($hosts as $host) {
+                $connections[] = new Connection($host);
+            }
         }
 
-        $plan = [];
-        $dependencies = $recipe->getDependencies();
-        foreach($dependencies as $dependency) {
-            $plan = [...$plan, ...$this->buildPlan(
-                $dependency->name,
-                $target,
-                $skipRecipe
-            )];
-        }
-        $plan[] = new Step($recipe, $skipRecipe);
+        foreach($plan as $step) {
+            $recipe = $step->recipe;
+            $execute = $step->execute;
 
-        return $plan;
-    }
-
-    private function connectHost(SshHost $host): void {
-        $this->hostName = $host->name;
-
-        $this->sshClient = new SshClient($host);
-        $this->sshClient->connect();
-
-        $this->releaseLog = new ReleaseLog($this->sshClient);
-    }
-
-    private function disconnectHost(): void {
-        $this->sshClient?->disconnect();
-        $this->releaseLog = null;
-        $this->sshClient = null;
-        $this->hostName = null;
-    }
-
-    /**
-     * @param Map<Recipe, bool> $plan
-     */
-    private function execute(Map $plan, ?string $target): void {
-        foreach($plan as $recipe => $skip) {
             if (!$recipe->hasTasks()) {
                 continue;
             }
 
-            Cli::writeLn("Recipe: {$recipe->name} [".($recipe->remote ? "remote" : "local")."]", Color::Cyan);
+            Cli::writeLn("Recipe: {$recipe->name}", Color::Cyan);
 
-            if ($skip) {
+            if (!$execute) {
                 Cli::writeLn("Skipped", Color::Grey);
                 Cli::writeLn();
                 continue;
             }
 
-            if ($recipe->remote) {
-                if (empty($target)) {
-                    throw new \InvalidArgumentException("Remote recipe requires target");
+            $start = microtime(true);
+
+            foreach($recipe->tasks() as $task) {
+                $time = (new DateTime())->format("H:i:s.v");
+                Cli::write("{$time} ", Color::Grey);
+
+                if ($task->remote) {
+                    foreach($connections as $connection) {
+                        $this->activeConnection = $connection;
+                        $host = $this->getHostName();
+                        Cli::write("[{$target}@{$host}] ", Color::Red);
+                        Cli::writeLn($task->name, Color::Green);
+
+                        $task->task->run($this);
+                        $this->activeConnection = null;
+                    }
+                } else {
+                    Cli::write("[local] ", Color::Blue);
+                    Cli::writeLn($task->name, Color::Green);
+
+                    $task->task->run($this);
                 }
-
-                $hosts = $this->setup->getTarget($target);
-                if (empty($hosts)) {
-                    throw new \InvalidArgumentException("No hosts found for target");
-                }
-
-                foreach($hosts as $host) {
-                    Cli::writeLn("Target: {$target}@{$host->name}", Color::Blue);
-                    $this->connectHost($host);
-
-                    $this->executeRecipe($recipe);
-
-                    $this->disconnectHost();
-                }
-            } else {
-                $this->executeRecipe($recipe);
             }
-        }
-    }
 
-    private function executeRecipe(Recipe $recipe): void {
-        $start = microtime(true);
+            $total = microtime(true) - $start;
 
-        foreach($recipe->tasks() as $task) {
-            $time = (new DateTime())->format("H:i:s.v");
-            Cli::write($time."\t", Color::Green);
-            Cli::writeLn($task->name, Color::Green);
-            $task->task->run($this);
+            Cli::write("Total: ");
+            Cli::writeln((string)round($total, 5)."s", Color::Yellow);
+            Cli::writeLn();
         }
 
-        $total = microtime(true) - $start;
-
-        Cli::write("Total: ");
-        Cli::writeln((string)round($total, 5)."s", Color::Yellow);
-        Cli::writeLn();
+        foreach($connections as $connection) {
+            $connection->disconnect();
+        }
     }
 }

@@ -66,17 +66,8 @@ class Setup
     /**
      * @param list<string|null> $targets
      */
-    public function local(string $name, array $targets=[]): Recipe {
-        $recipe = new Recipe($name, remote: false, allowedTargets: $targets);
-        $this->recipes[$name] = $recipe;
-        return $recipe;
-    }
-
-    /**
-     * @param list<string|null> $targets
-     */
-    public function remote(string $name, array $targets=[]): Recipe {
-        $recipe = new Recipe($name, remote: true, allowedTargets: $targets);
+    public function recipe(string $name, array $targets=[]): Recipe {
+        $recipe = new Recipe($name, allowedTargets: $targets);
         $this->recipes[$name] = $recipe;
         return $recipe;
     }

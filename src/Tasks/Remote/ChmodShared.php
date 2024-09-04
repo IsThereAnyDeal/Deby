@@ -1,6 +1,9 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Tasks\Remote;
 
+use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
+
+#[Remote]
 class ChmodShared extends Chmod
 {
     /**

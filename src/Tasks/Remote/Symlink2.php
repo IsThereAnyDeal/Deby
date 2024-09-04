@@ -1,6 +1,7 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Tasks\Remote;
 
+use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 use IsThereAnyDeal\Tools\Deby\Tasks\Vars;
@@ -8,6 +9,7 @@ use IsThereAnyDeal\Tools\Deby\Tasks\Vars;
 /**
  * Symlink shared files or folders
  */
+#[Remote]
 class Symlink2 implements Task
 {
     /** @var list<string> */

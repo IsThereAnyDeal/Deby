@@ -22,4 +22,8 @@ class Cli
         self::write($message, ...$options);
         echo "\n";
     }
+
+    public static function padding(int $length): void {
+        echo str_repeat(" ", $length);
+    }
 }
