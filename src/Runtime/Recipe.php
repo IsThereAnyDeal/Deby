@@ -5,6 +5,8 @@ use DateTime;
 use Ds\Set;
 use IsThereAnyDeal\Tools\Deby\Cli\Cli;
 use IsThereAnyDeal\Tools\Deby\Cli\Color;
+use IsThereAnyDeal\Tools\Deby\Runtime\Structs\Dependency;
+use IsThereAnyDeal\Tools\Deby\Runtime\Structs\TaskDescriptor;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
 class Recipe
@@ -59,20 +61,12 @@ class Recipe
         return $this;
     }
 
-    public function execute(Runtime $runtime): void {
-        $start = microtime(true);
-
+    /**
+     * @return \Generator<TaskDescriptor>
+     */
+    public function tasks(): iterable {
         foreach($this->tasks as $task) {
-            $time = (new DateTime())->format("H:i:s.v");
-            Cli::write($time."\t", Color::Green);
-            Cli::writeLn($task->name, Color::Green);
-            $task->task->run($runtime);
+            yield $task;
         }
-
-        $total = microtime(true) - $start;
-
-        Cli::write("Total: ");
-        Cli::writeln((string)round($total, 5)."s", Color::Yellow);
-        Cli::writeLn();
     }
 }

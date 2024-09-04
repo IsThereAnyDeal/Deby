@@ -1,5 +1,5 @@
 <?php
-namespace IsThereAnyDeal\Tools\Deby\Runtime;
+namespace IsThereAnyDeal\Tools\Deby\Runtime\Structs;
 
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 

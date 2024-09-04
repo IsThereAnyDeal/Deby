@@ -1,12 +1,13 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Runtime;
 
+use DateTime;
 use Ds\Map;
-use Ds\Set;
 use ErrorException;
 use IsThereAnyDeal\Tools\Deby\Cli\Cli;
 use IsThereAnyDeal\Tools\Deby\Cli\Color;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\ReleaseLog;
+use IsThereAnyDeal\Tools\Deby\Runtime\Structs\Step;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshHost;
 
@@ -68,7 +69,10 @@ class Runtime
 
         /** @var Map<Recipe, bool> $plan */
         $plan = new Map();
-        foreach($dependencies as list($recipe, $skipped)) {
+        foreach($dependencies as $step) {
+            $recipe = $step->recipe;
+            $skipped = $step->skip;
+
             if ($plan->hasKey($recipe)) {
                 $plan->put($recipe, $plan->get($recipe) && $skipped);
             } else {
@@ -85,7 +89,7 @@ class Runtime
     }
 
     /**
-     * @return list<array{Recipe, bool}>
+     * @return list<Step>
      */
     private function buildPlan(string $recipeName, ?string $target, bool $skip): array {
         $recipe = $this->setup->getRecipe($recipeName);
@@ -104,7 +108,7 @@ class Runtime
                 $skipRecipe
             )];
         }
-        $plan[] = [$recipe, $skipRecipe];
+        $plan[] = new Step($recipe, $skipRecipe);
 
         return $plan;
     }
@@ -156,13 +160,30 @@ class Runtime
                     Cli::writeLn("Target: {$target}@{$host->name}", Color::Blue);
                     $this->connectHost($host);
 
-                    $recipe->execute($this);
+                    $this->executeRecipe($recipe);
 
                     $this->disconnectHost();
                 }
             } else {
-                $recipe->execute($this);
+                $this->executeRecipe($recipe);
             }
         }
+    }
+
+    private function executeRecipe(Recipe $recipe): void {
+        $start = microtime(true);
+
+        foreach($recipe->tasks() as $task) {
+            $time = (new DateTime())->format("H:i:s.v");
+            Cli::write($time."\t", Color::Green);
+            Cli::writeLn($task->name, Color::Green);
+            $task->task->run($this);
+        }
+
+        $total = microtime(true) - $start;
+
+        Cli::write("Total: ");
+        Cli::writeln((string)round($total, 5)."s", Color::Yellow);
+        Cli::writeLn();
     }
 }
