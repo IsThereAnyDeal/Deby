@@ -20,10 +20,10 @@ class Symlink implements Task
 
     public function run(Runtime $runtime): void {
         $ssh = $runtime->getSshClient();
-        $release = $runtime->getReleaseSetup()->name;
+        $release = $runtime->getReleaseSetup();
 
         foreach($this->files as $file) {
-            $ssh->symlink("%releases%/{$release}/{$file}", "%shared%/{$file}");
+            $ssh->symlink($release->path($file), "%shared%/{$file}");
         }
     }
 }

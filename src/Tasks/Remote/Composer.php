@@ -18,9 +18,9 @@ class Composer implements Task
 
     public function run(Runtime $runtime): void {
         $ssh = $runtime->getSshClient();
-        $release = $runtime->getReleaseSetup()->name;
+        $release = $runtime->getReleaseSetup();
 
-        $releaseDir = $ssh->remotePath("%releases%/$release");
+        $releaseDir = $ssh->remotePath($release->dir());
         $options = implode(" ", $this->options);
         $ssh->exec("composer {$this->command} {$options} -d {$releaseDir}");
     }

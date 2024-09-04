@@ -16,9 +16,9 @@ class Ready implements Task
 
     public function run(Runtime $runtime): void {
         $releaseLog = $runtime->getReleaseLog();
-        $release = $runtime->getReleaseSetup()->name;
+        $release = $runtime->getReleaseSetup();
 
-        $releaseLog->setStatus($release, EStatus::Ready);
-        Cli::writeLn("Release {$release} ready", Style::Faint, Color::Grey);
+        $releaseLog->setStatus($release->name, EStatus::Ready);
+        Cli::writeLn("Release {$release->name} ready", Style::Faint, Color::Grey);
     }
 }

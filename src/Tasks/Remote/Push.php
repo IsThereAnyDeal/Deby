@@ -16,14 +16,13 @@ class Push implements Task
     public function run(Runtime $runtime): void {
         $ssh = $runtime->getSshClient();
         $releaseLog = $runtime->getReleaseLog();
-        $releaseName = $runtime->getReleaseSetup()->name;
+        $release = $runtime->getReleaseSetup();
 
-        $releaseDir = "%releases%/$releaseName";
-        $ssh->mkdir($releaseDir);
+        $ssh->mkdir($release->dir());
 
-        $releaseLog->setStatus($releaseName, EStatus::New);
+        $releaseLog->setStatus($release->name, EStatus::New);
 
-        $archive = $releaseDir."/archive.tar.gz";
+        $archive = $release->path("/archive.tar.gz");
 
         $ssh->upload($this->releaseArchivePath, $archive);
         $ssh->untar($archive);

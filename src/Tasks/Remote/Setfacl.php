@@ -18,10 +18,10 @@ class Setfacl implements Task
     #[\Override]
     public function run(Runtime $runtime): void {
         $ssh = $runtime->getSshClient();
-        $release = $runtime->getReleaseSetup()->name;
+        $release = $runtime->getReleaseSetup();
 
         foreach($this->facl as $path => $options) {
-            $remotePath = $ssh->remotePath("%releases%/{$release}/{$path}");
+            $remotePath = $ssh->remotePath($release->path($path));
             $ssh->exec("setfacl {$options} {$remotePath}");
         }
     }

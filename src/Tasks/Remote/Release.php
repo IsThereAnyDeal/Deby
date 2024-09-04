@@ -7,6 +7,7 @@ use IsThereAnyDeal\Tools\Deby\Cli\Style;
 use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
+use IsThereAnyDeal\Tools\Deby\Runtime\Structs\ReleaseSetup;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
 #[Remote]
@@ -19,13 +20,13 @@ class Release implements Task
         $releaseLog = $runtime->getReleaseLog();
 
         if ($runtime->hasReleaseSetup()) {
-            $release = $runtime->getReleaseSetup()->name;
+            $release = $runtime->getReleaseSetup();
         } else {
             $isNewer = is_null($releaseLog->getCurrent());
             $release = null;
             foreach($releaseLog as $name => $status) {
                 if ($isNewer && $status === EStatus::Ready) {
-                    $release = $name;
+                    $release = new ReleaseSetup($name);
                 } elseif($status === EStatus::Current) {
                     $isNewer = true;
                 }
@@ -36,13 +37,13 @@ class Release implements Task
             }
         }
 
-        $releaseDir = "%releases%/$release";
+        $releaseDir = $release->dir();
         if (!$ssh->dirExists($releaseDir)) {
-            throw new \ErrorException("Release {$release} not found");
+            throw new \ErrorException("Release {$release->name} not found");
         }
 
-        Cli::writeLn("Release {$release}", Style::Faint, Color::Grey);
+        Cli::writeLn("Release {$release->name}", Style::Faint, Color::Grey);
         $ssh->symlink("current", $releaseDir);
-        $releaseLog->setStatus($release, EStatus::Current);
+        $releaseLog->setStatus($release->name, EStatus::Current);
     }
 }
