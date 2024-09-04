@@ -8,7 +8,6 @@ use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
-use IsThereAnyDeal\Tools\Deby\Tasks\Vars;
 
 #[Remote]
 class Release implements Task
@@ -19,11 +18,8 @@ class Release implements Task
         $ssh = $runtime->getSshClient();
         $releaseLog = $runtime->getReleaseLog();
 
-        if ($runtime->hasVar(Vars::ReleaseName)) {
-            $release = $runtime->getVar(Vars::ReleaseName);
-            if (!is_string($release)) {
-                throw new \InvalidArgumentException();
-            }
+        if ($runtime->hasReleaseSetup()) {
+            $release = $runtime->getReleaseSetup()->name;
         } else {
             $isNewer = is_null($releaseLog->getCurrent());
             $release = null;

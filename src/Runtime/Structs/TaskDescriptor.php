@@ -14,7 +14,6 @@ class TaskDescriptor {
     ) {
         $rc = new \ReflectionClass($task);
         $attributes = $rc->getAttributes(Remote::class);
-
         $this->remote = !empty($attributes);
     }
 }

@@ -6,13 +6,15 @@ use ErrorException;
 use IsThereAnyDeal\Tools\Deby\Cli\Cli;
 use IsThereAnyDeal\Tools\Deby\Cli\Color;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\ReleaseLog;
+use IsThereAnyDeal\Tools\Deby\Runtime\Structs\ReleaseSetup;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
 
 class Runtime
 {
     public bool $printSkipped = true;
 
-    public ?Connection $activeConnection = null;
+    private ?Connection $activeConnection = null;
+    private ?ReleaseSetup $releaseSetup = null;
 
     /** @var array<string, mixed> */
     private array $vars = [];
@@ -43,6 +45,25 @@ class Runtime
             throw new ErrorException();
         }
         return $releaseLog;
+    }
+
+    public function hasReleaseSetup(): bool {
+        return !is_null($this->releaseSetup);
+    }
+
+    public function getReleaseSetup(): ReleaseSetup {
+        if (is_null($this->releaseSetup)) {
+            throw new \ErrorException("Release has not been set up");
+        }
+        return $this->releaseSetup;
+    }
+
+    public function setupRelease(string $releaseName): self {
+        if (!is_null($this->releaseSetup)) {
+            throw new ErrorException("A release has already been set up");
+        }
+        $this->releaseSetup = new ReleaseSetup($releaseName);
+        return $this;
     }
 
     public function hasVar(string $name): bool {

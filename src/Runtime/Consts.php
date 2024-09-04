@@ -3,9 +3,9 @@ namespace IsThereAnyDeal\Tools\Deby\Runtime;
 
 class Consts
 {
-    public const StatusDir = ".deby";
-    public const ReleasesLog = "releases";
-    public const ReleasesDir = "releases";
-    public const SharedDir = "shared";
-    public const CurrentDir = "current";
+    public const string StatusDir = ".deby";
+    public const string ReleasesLog = "releases";
+    public const string ReleasesDir = "releases";
+    public const string SharedDir = "shared";
+    public const string CurrentDir = "current";
 }
