@@ -17,7 +17,7 @@ class Symlink2 implements Task
     private readonly string $targetDir;
 
     public function __construct(string $targetDir, string ...$files) {
-        $this->targetDir = $targetDir;
+        $this->targetDir = rtrim($targetDir, "/");
         $this->files = array_values($files);
     }
 

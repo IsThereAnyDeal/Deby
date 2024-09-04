@@ -9,18 +9,18 @@ use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 class Chmod implements Task
 {
     /**
-     * @param list<string> $dirs
+     * @param list<string> $paths
      */
     public function __construct(
-        private readonly array $dirs,
-        private readonly int $mode
+        private readonly array $paths,
+        private readonly int   $mode
     ) {}
 
     public function run(Runtime $runtime): void {
         $ssh = $runtime->getActiveConnection()->getSshClient();
 
         $mode = base_convert((string)$this->mode, 10, 8);
-        $dirs = implode(" ", array_map(fn(string $dir) => $ssh->remotePath($dir), $this->dirs));
+        $dirs = implode(" ", array_map(fn(string $path) => $ssh->path($path), $this->paths));
         $ssh->exec("chmod {$mode} {$dirs}");
     }
 }

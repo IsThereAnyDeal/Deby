@@ -7,6 +7,7 @@ use IsThereAnyDeal\Tools\Deby\Cli\Style;
 use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
+use IsThereAnyDeal\Tools\Deby\Runtime\Path;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
 #[Remote]
@@ -33,12 +34,12 @@ class Rollback implements Task
             return;
         }
 
-        $releaseDir = "%releases%/$prev";
+        $releaseDir = Path::releases($prev);
         if (!$ssh->dirExists($releaseDir)) {
             throw new \ErrorException("Release {$prev} not found");
         }
 
-        $ssh->symlink("current", $releaseDir);
+        $ssh->symlink(Path::current(), $releaseDir);
         $releaseLog->setStatus($prev, EStatus::Current);
 
         Cli::writeLn("Rolled back to {$prev}", Style::Faint, Color::Grey);

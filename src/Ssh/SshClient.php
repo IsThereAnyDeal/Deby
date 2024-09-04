@@ -3,7 +3,6 @@ namespace IsThereAnyDeal\Tools\Deby\Ssh;
 
 use ErrorException;
 use IsThereAnyDeal\Tools\Deby\Exceptions\NoConnectionException;
-use IsThereAnyDeal\Tools\Deby\Runtime\Consts;
 
 class SshClient
 {
@@ -52,7 +51,12 @@ class SshClient
 
         $this->ssh = $ssh;
         $this->sftp = $sftp;
-        $this->baseDir = ssh2_sftp_realpath($sftp, $this->host->workingDir); // @phpstan-ignore-line TODO Don't know what's throwing error here
+
+        $realpath = ssh2_sftp_realpath($sftp, $this->host->workingDir);
+        if ($realpath === false) {
+            throw new ErrorException("Failed to set up base dir path");
+        }
+        $this->baseDir = $realpath;
     }
 
     public function exec(string $command, string &$stdout="", string &$stderr="", bool $throwOnError=true): bool {
@@ -98,21 +102,7 @@ class SshClient
         return $exitCode === 0;
     }
 
-    public function remotePath(string $path): string {
-        if (empty($path)) {
-            throw new \ErrorException("Empty path");
-        }
-
-        $map = [
-            "%shared%" => Consts::SharedDir,
-            "%releases%" => Consts::ReleasesDir
-        ];
-
-        $path = str_replace(array_keys($map), array_values($map), $path);
-        if (str_contains($path, "%")) {
-            throw new ErrorException("Unresolved variable in path: $path");
-        }
-
+    public function path(string $path): string {
         return "{$this->baseDir}/{$path}";
     }
 
@@ -124,7 +114,7 @@ class SshClient
      * @param list<string> $dirs
      */
     public function mkdir2(array $dirs, int $mode=0755): void {
-        $dirs = array_map(fn(string $dir) => $this->remotePath($dir), $dirs);
+        $dirs = array_map(fn(string $dir) => $this->path($dir), $dirs);
         $mode = base_convert((string)$mode, 10, 8);
         $this->exec("mkdir -p -m{$mode} ".implode(" ", $dirs));
     }
@@ -134,7 +124,7 @@ class SshClient
             throw new NoConnectionException();
         }
 
-        $dir = $this->remotePath($dir);
+        $dir = $this->path($dir);
         if ($recursive) {
             $this->exec("rm -r $dir");
             return true;
@@ -153,7 +143,7 @@ class SshClient
             throw new ErrorException("Could not find local file");
         }
 
-        $remoteFile = $this->remotePath($remoteFile);
+        $remoteFile = $this->path($remoteFile);
 
         $send = ssh2_scp_send($this->ssh, $localFile, $remoteFile, $mode);
         ssh2_exec($this->ssh, "exit"); // flush buffers
@@ -161,7 +151,7 @@ class SshClient
     }
 
     public function untar(string $file): void {
-        $path = $this->remotePath($file);
+        $path = $this->path($file);
         $dir = dirname($path);
         $name = basename($path);
 
@@ -173,7 +163,7 @@ class SshClient
             throw new NoConnectionException();
         }
 
-        return ssh2_sftp_unlink($this->sftp, $this->remotePath($path));
+        return ssh2_sftp_unlink($this->sftp, $this->path($path));
     }
 
     public function symlink(string $source, string $target, bool $replace=true): bool {
@@ -182,27 +172,27 @@ class SshClient
         }
 
         if ($replace) {
-            ssh2_sftp_unlink($this->sftp, $this->remotePath($source));
+            ssh2_sftp_unlink($this->sftp, $this->path($source));
         }
 
         return ssh2_sftp_symlink($this->sftp,
-            $this->remotePath($target),
-            $this->remotePath($source)
+            $this->path($target),
+            $this->path($source)
         );
     }
 
     public function dirExists(string $path): bool {
-        $path = $this->remotePath($path);
+        $path = $this->path($path);
         return $this->exec("[[ -d $path ]]", throwOnError: false);
     }
 
     public function fileExists(string $path): bool {
-        $path = $this->remotePath($path);
+        $path = $this->path($path);
         return $this->exec("[[ -f $path ]]", throwOnError: false);
     }
 
     public function readFile(string $path): string {
-        $path = $this->remotePath($path);
+        $path = $this->path($path);
 
         $stream = fopen("ssh2.sftp://".intval($this->sftp).$path, "r");
         if ($stream === false) {
@@ -219,7 +209,7 @@ class SshClient
     }
 
     public function writeFile(string $path, string $data): void {
-        $path = $this->remotePath($path);
+        $path = $this->path($path);
 
         $stream = fopen("ssh2.sftp://".intval($this->sftp).$path, "w");
         if ($stream === false) {
@@ -233,7 +223,6 @@ class SshClient
 
         fclose($stream);
     }
-
 
     public function disconnect(): void {
         if (is_null($this->ssh)) {

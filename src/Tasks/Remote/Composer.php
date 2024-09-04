@@ -20,7 +20,7 @@ class Composer implements Task
         $ssh = $runtime->getActiveConnection()->getSshClient();
         $release = $runtime->getReleaseSetup();
 
-        $releaseDir = $ssh->remotePath($release->dir());
+        $releaseDir = $ssh->path($release->dir());
         $options = implode(" ", $this->options);
         $ssh->exec("composer {$this->command} {$options} -d {$releaseDir}");
     }

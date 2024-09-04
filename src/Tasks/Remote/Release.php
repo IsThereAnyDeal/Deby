@@ -8,6 +8,7 @@ use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Runtime\Structs\ReleaseSetup;
+use IsThereAnyDeal\Tools\Deby\Runtime\Path;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
 #[Remote]
@@ -44,7 +45,7 @@ class Release implements Task
         }
 
         Cli::writeLn("Release {$release->name}", Style::Faint, Color::Grey);
-        $ssh->symlink("current", $releaseDir);
+        $ssh->symlink(Path::current(), $releaseDir);
         $releaseLog->setStatus($release->name, EStatus::Current);
     }
 }

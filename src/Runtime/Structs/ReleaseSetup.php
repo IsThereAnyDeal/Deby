@@ -1,6 +1,8 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Runtime\Structs;
 
+use IsThereAnyDeal\Tools\Deby\Runtime\Path;
+
 class ReleaseSetup
 {
     public function __construct(
@@ -11,11 +13,11 @@ class ReleaseSetup
         }
     }
 
-    public function dir(): string {
-        return "%releases%/{$this->name}";
+    public function dir(): Path {
+        return Path::releases($this->name);
     }
 
-    public function path(string $path): string {
-        return "%releases%/{$this->name}/{$path}";
+    public function path(string $path): Path {
+        return Path::releases("{$this->name}/{$path}");
     }
 }

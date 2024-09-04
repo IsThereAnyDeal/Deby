@@ -8,6 +8,7 @@ use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\ReleaseLog;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
+use IsThereAnyDeal\Tools\Deby\Runtime\Path;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
@@ -19,7 +20,7 @@ class Cleanup implements Task
     ) {}
 
     private function removeRelease(SshClient $ssh, ReleaseLog $log, string $name, EStatus $status): void {
-        $releaseDir = "%releases%/$name";
+        $releaseDir = Path::releases($name);
 
         if ($ssh->dirExists($releaseDir)) {
             Cli::writeln("Remove release {$name} ({$status->value})", Style::Faint, Color::Grey);

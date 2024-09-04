@@ -21,7 +21,7 @@ class Setfacl implements Task
         $release = $runtime->getReleaseSetup();
 
         foreach($this->facl as $path => $options) {
-            $remotePath = $ssh->remotePath($release->path($path));
+            $remotePath = $ssh->path($release->path($path));
             $ssh->exec("setfacl {$options} {$remotePath}");
         }
     }

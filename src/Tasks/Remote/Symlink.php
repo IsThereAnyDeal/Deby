@@ -3,6 +3,7 @@ namespace IsThereAnyDeal\Tools\Deby\Tasks\Remote;
 
 use IsThereAnyDeal\Tools\Deby\Runtime\Attributes\Remote;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
+use IsThereAnyDeal\Tools\Deby\Runtime\Path;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
 /**
@@ -23,7 +24,7 @@ class Symlink implements Task
         $release = $runtime->getReleaseSetup();
 
         foreach($this->files as $file) {
-            $ssh->symlink($release->path($file), "%shared%/{$file}");
+            $ssh->symlink($release->path($file), Path::shared($file));
         }
     }
 }
