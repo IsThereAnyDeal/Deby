@@ -1,5 +1,7 @@
 {
   "name": "itad/deby",
+  "version": "0.2.0",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "IsThereAnyDeal\\Tools\\Deby\\": "src/"
@@ -20,5 +22,8 @@
   "require-dev": {
     "phpstan/phpstan": "^1.10",
     "phpunit/phpunit": "^11.3"
+  },
+  "suggest": {
+    "ext-yaml": "*"
   }
 }

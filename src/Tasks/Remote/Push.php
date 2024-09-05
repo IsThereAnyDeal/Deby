@@ -6,6 +6,9 @@ use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
+/**
+ * Push release to remote
+ */
 #[Remote]
 class Push implements Task
 {

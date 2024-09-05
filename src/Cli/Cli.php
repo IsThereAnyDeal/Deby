@@ -29,8 +29,16 @@ class Cli
 
     public static function input(): string {
         $f = fopen("php://stdin", "r");
+        if ($f === false) {
+            throw new \ErrorException();
+        }
+
         $result = fgets($f);
         fclose($f);
+
+        if ($result === false) {
+            throw new \ErrorException();
+        }
         return trim($result);
     }
 }

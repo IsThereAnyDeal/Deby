@@ -5,6 +5,13 @@ use ErrorException;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshAuth;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshHost;
 
+/**
+ * @phpstan-type Config array{
+ *      auth: array<string, array{username: string, pubkey: string, privkey: string}>,
+ *      hosts: array<string, array{host: string, port: int, auth: string, workingDir: string}>,
+ *      targets: array<string, list<string>>
+ *  }
+ */
 class Setup
 {
     /** @var array<string, list<SshHost>> */
@@ -14,14 +21,27 @@ class Setup
     private array $recipes = [];
 
     public function readTargetsConfig(string $path): void {
-        /**
-         * @var array{
-         *     auth: array<string, array{username: string, pubkey: string, privkey: string}>,
-         *     hosts: array<string, array{host: string, port: int, auth: string, workingDir: string}>,
-         *     targets: array<string, list<string>>
-         * } $config
-         */
-        $config = json_decode(file_get_contents($path), true); // @phpstan-ignore-line
+        if (!file_exists($path)) {
+            throw new ErrorException("Targets config not found");
+        }
+
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            throw new ErrorException("Could not read targets config");
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        if ($extension === "yaml" || $extension === "yml") {
+            if (!function_exists("yaml_parse_file")) {
+                throw new ErrorException("Yaml extension not found");
+            }
+
+            /** @var Config $config */
+            $config = yaml_parse($contents);
+        } else {
+            /** @var Config $config */
+            $config = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+        }
 
         $authMap = [];
         foreach($config['auth'] as $name => $data) {

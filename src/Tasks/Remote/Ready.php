@@ -9,6 +9,9 @@ use IsThereAnyDeal\Tools\Deby\Runtime\ReleaseLog\EStatus;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
+/**
+ * Mark release as ready
+ */
 #[Remote]
 class Ready implements Task
 {

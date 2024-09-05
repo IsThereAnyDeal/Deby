@@ -12,6 +12,12 @@ use IsThereAnyDeal\Tools\Deby\Runtime\Path;
 use IsThereAnyDeal\Tools\Deby\Ssh\SshClient;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
+/**
+ * Cleanup old releases:
+ *
+ * - releases with New status - most likely failed to deploy and got stuck in New state
+ * - releases that go beyond the limit of releases to keep
+ */
 #[Remote]
 class Cleanup implements Task
 {

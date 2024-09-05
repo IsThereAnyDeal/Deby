@@ -7,6 +7,10 @@ use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Runtime\Path;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 
+/**
+ * Create necessary Deby folders (status, releases, shared)
+ * and optionally shared folders
+ */
 #[Remote]
 class Prepare implements Task
 {
