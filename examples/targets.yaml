@@ -1,0 +1,19 @@
+auth:
+    my-user-auth:
+        username: my-user
+        pubkey: "C:\\keys\\openssh.pub"
+        privkey: "C:\\keys\\openssh.ppk"
+hosts:
+    prod:
+        host: 127.0.0.1
+        port: 22
+        auth: my-user-auth
+        workingDir: "/data/my-project-dev"
+    dev:
+        host: 127.0.0.1
+        port: 22
+        auth: my-user-auth
+        workingDir: "/data/my-project-prod"
+targets:
+    prod: [prod]
+    dev: [dev]
