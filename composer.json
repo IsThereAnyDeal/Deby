@@ -17,6 +17,7 @@
   ],
   "require": {
     "ext-ds": "*",
+    "php-ds/php-ds": "^1.5",
     "vanilla/garden-cli": "^4.0"
   },
   "require-dev": {
