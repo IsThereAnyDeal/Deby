@@ -26,4 +26,11 @@ class Cli
     public static function padding(int $length): void {
         echo str_repeat(" ", $length);
     }
+
+    public static function input(): string {
+        $f = fopen("php://stdin", "r");
+        $result = fgets($f);
+        fclose($f);
+        return trim($result);
+    }
 }
