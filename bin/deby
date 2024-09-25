@@ -70,9 +70,5 @@ try {
 } catch(Throwable $e) {
     $message = $e->getMessage();
     Cli::writeln(empty($message) ? "Error" : $message, Color::Red, Style::Bold);
-
-    if (empty($message)) {
-        throw $e;
-    }
     exit(1);
 }
