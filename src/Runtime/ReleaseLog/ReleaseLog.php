@@ -43,6 +43,7 @@ class ReleaseLog implements JsonSerializable, \Countable, \IteratorAggregate
         if (!isset($data['releases']) || !is_array($data['releases'])) {
             throw new CorruptedException();
         }
+        /** @var string $name */
         foreach($data['releases'] as $name => $status) {
             if (!is_string($status)) {
                 throw new CorruptedException();
