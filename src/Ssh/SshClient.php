@@ -69,7 +69,7 @@ class SshClient
             throw new ErrorException("Couldn't get stdout stream");
         }
 
-        $errStream = ssh2_fetch_stream($outStream,SSH2_STREAM_STDERR);
+        $errStream = ssh2_fetch_stream($outStream, SSH2_STREAM_STDERR);
         if ($errStream === false) {
             throw new ErrorException("Couldn't get stderr stream");
         }
@@ -147,7 +147,7 @@ class SshClient
 
         $send = ssh2_scp_send($this->ssh, $localFile, $remoteFile, $mode);
         ssh2_exec($this->ssh, "exit"); // flush buffers
-        return $send;
+        return $send; // @phpstan-ignore-line false positive
     }
 
     public function untar(string $file): void {
