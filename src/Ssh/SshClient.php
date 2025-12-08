@@ -147,7 +147,7 @@ class SshClient
 
         $send = ssh2_scp_send($this->ssh, $localFile, $remoteFile, $mode);
         ssh2_exec($this->ssh, "exit"); // flush buffers
-        return $send; // @phpstan-ignore-line false positive
+        return $send;
     }
 
     public function untar(string $file): void {
