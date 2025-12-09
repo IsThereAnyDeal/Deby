@@ -29,7 +29,7 @@ class GitStatus implements Task
             throw new \ErrorException();
         }
 
-        Cli::write("Do you want to continue? [Yn] ", Color::BrightRed);
+        Cli::write("Do you want to continue? [yN] ", Color::BrightRed);
         $input = strtolower(Cli::input());
         if (!in_array($input, ["y", "yes"])) {
             Cli::writeLn("Exiting", Color::Grey);
