@@ -3,6 +3,9 @@ namespace IsThereAnyDeal\Tools\Deby\Types;
 
 use Ds\Map;
 
+/**
+ * @implements \IteratorAggregate<string, string>
+ */
 class AssetMap implements \IteratorAggregate
 {
     /** @var Map<string, string> */
@@ -14,7 +17,7 @@ class AssetMap implements \IteratorAggregate
         $this->map = new Map();
     }
 
-    public function put(string $key, string $filepath) {
+    public function put(string $key, string $filepath): void {
         if ($this->map->hasKey($key)) {
             throw new \ErrorException("Asset map conflict: $key already exists");
         }
@@ -30,9 +33,9 @@ class AssetMap implements \IteratorAggregate
     }
 
     /**
-     * @return iterable<string, string>
+     * @return \Traversable<string, string>
      */
-    public function getIterator(): iterable {
+    public function getIterator(): \Traversable {
         return $this->map->getIterator();
     }
 }

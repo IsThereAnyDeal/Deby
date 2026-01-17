@@ -1,7 +1,6 @@
 <?php
 namespace IsThereAnyDeal\Tools\Deby\Tasks\Local;
 
-use Ds\Map;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
 use IsThereAnyDeal\Tools\Deby\Types\AssetMap;
@@ -9,9 +8,6 @@ use IsThereAnyDeal\Tools\Deby\Types\FileSet;
 
 class Copy implements Task
 {
-    /**
-     * @param ?Map<string, string> $assetMap
-     */
     public function __construct(
         private readonly string $destination,
         private readonly FileSet $files,
@@ -31,7 +27,9 @@ class Copy implements Task
             $pattern
         );
         $target = (string)preg_replace("#[\\/]+#", "/", $target);
-        return rtrim(trim($target, "/"), ".");
+        return trim($target, "/")
+            |> (fn(string $v) => rtrim($v, "."))
+            |> (fn(string $v) => (string)str_replace("./", "", $v));
     }
 
     public function run(Runtime $runtime): void {
@@ -50,8 +48,7 @@ class Copy implements Task
         foreach($this->files as $file) {
             $relPath = $this->files->getRelativePath($file);
             $basename = pathinfo($relPath, PATHINFO_BASENAME);
-            $dirname = pathinfo($relPath, PATHINFO_DIRNAME)
-                    |> (fn(string $dirname) => $dirname === "." ? "" : $dirname);
+            $dirname = pathinfo($relPath, PATHINFO_DIRNAME);
 
             $m = [];
             preg_match("#(?<filename>[^.]+)(?:\.(?<extension>.+$))?#", $basename, $m);
