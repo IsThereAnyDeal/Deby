@@ -30,7 +30,7 @@ class Copy implements Task
             $pattern
         );
         $target = (string)preg_replace("#[\\/]+#", "/", $target);
-        return trim($target, "/");
+        return rtrim(trim($target, "/"), ".");
     }
 
     public function run(Runtime $runtime): void {
