@@ -4,6 +4,7 @@ namespace IsThereAnyDeal\Tools\Deby\Tasks\Local;
 use Ds\Map;
 use IsThereAnyDeal\Tools\Deby\Runtime\Runtime;
 use IsThereAnyDeal\Tools\Deby\Tasks\Task;
+use IsThereAnyDeal\Tools\Deby\Types\AssetMap;
 use IsThereAnyDeal\Tools\Deby\Types\FileSet;
 
 class Copy implements Task
@@ -15,7 +16,7 @@ class Copy implements Task
         private readonly string $destination,
         private readonly FileSet $files,
         private readonly string $pattern="[dir]/[name].[ext]",
-        private readonly ?Map $assetMap=null,
+        private readonly ?AssetMap $assetMap=null,
         private readonly ?string $mapPrefix=null,
         private readonly ?string $mapPattern=null
     ) {}
@@ -91,10 +92,7 @@ class Copy implements Task
                     ? ($this->mapPrefix ?? "").$relPath
                     : $this->processPattern($this->mapPattern, $parts);
 
-                if ($this->assetMap->hasKey($key)) {
-                    throw new \ErrorException("Asset map conflict: $key already exists");
-                }
-                $this->assetMap->put($key, $target);
+                $this->assetMap->put($key, $fileDestination);
             }
         }
     }
