@@ -15,7 +15,7 @@ class ChmodShared extends Chmod
         int $mode
     ) {
         parent::__construct(
-            array_map(fn(string $dir) => Path::shared($dir), $dirs),
+            array_map(fn(string $dir) => (string)Path::shared($dir), $dirs),
             $mode
         );
     }
